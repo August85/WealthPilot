@@ -1,0 +1,135 @@
+"""WealthPilot calculation engine: pure, deterministic, Decimal-based financial calculations.
+
+No I/O, no database, no network, no clock: every date comes from the inputs.
+"""
+
+from .epf import epf_accessible, epf_project
+from .fd import fd_maturity, fd_value_at
+from .fx import FxRateMissing, FxTable, Rate, convert, inverse, usd_inr_at_month, usd_inr_path
+from .hashing import canonical_hash, canonical_json
+from .insights import compute_insights
+from .models import (
+    AllInMonthly,
+    CalcWarning,
+    Explanation,
+    FundingPoint,
+    FxQuote,
+    HomeResult,
+    HouseholdSnapshot,
+    Insight,
+    NetWorthAccount,
+    NetWorthInput,
+    NetWorthItem,
+    NetWorthResult,
+    NetWorthRsuGrant,
+    RunMetrics,
+    RunResult,
+    ScenarioAssumptions,
+    SensitivityRow,
+    SnapshotAccount,
+    SnapshotFx,
+    SnapshotPrice,
+    SnapshotRsuGrant,
+    SnapshotVest,
+    StressRow,
+    UpcomingVest,
+    Warning,
+    YearlyRow,
+)
+from .money import CALC_CONTEXT, Money, add_months, q_money, q_rate, q_shares, to_decimal
+from .mortgage import (
+    all_in_monthly,
+    amortization_schedule,
+    cash_to_close,
+    loan_principal,
+    mortgage_payment,
+)
+from .networth import compute_net_worth
+from .retirement_401k import contributions_401k
+from .rsu import (
+    Disposition,
+    ShareConservationError,
+    VestRecord,
+    check_disposition_allowed,
+    forecast_vest_cash,
+    generate_vest_schedule,
+    grant_totals,
+    reconcile_vest,
+    vest_totals,
+)
+from .savings import project_savings
+from .scenario import MODEL_VERSION, RULEPACK_VERSION, input_hash, result_checksum, run_scenario
+
+__version__ = MODEL_VERSION
+
+__all__ = [
+    "CALC_CONTEXT",
+    "MODEL_VERSION",
+    "RULEPACK_VERSION",
+    "AllInMonthly",
+    "CalcWarning",
+    "Disposition",
+    "Explanation",
+    "FundingPoint",
+    "FxQuote",
+    "FxRateMissing",
+    "FxTable",
+    "HomeResult",
+    "HouseholdSnapshot",
+    "Insight",
+    "Money",
+    "NetWorthAccount",
+    "NetWorthInput",
+    "NetWorthItem",
+    "NetWorthResult",
+    "NetWorthRsuGrant",
+    "Rate",
+    "RunMetrics",
+    "RunResult",
+    "ScenarioAssumptions",
+    "SensitivityRow",
+    "ShareConservationError",
+    "SnapshotAccount",
+    "SnapshotFx",
+    "SnapshotPrice",
+    "SnapshotRsuGrant",
+    "SnapshotVest",
+    "StressRow",
+    "UpcomingVest",
+    "VestRecord",
+    "Warning",
+    "YearlyRow",
+    "add_months",
+    "all_in_monthly",
+    "amortization_schedule",
+    "canonical_hash",
+    "canonical_json",
+    "cash_to_close",
+    "check_disposition_allowed",
+    "compute_insights",
+    "compute_net_worth",
+    "contributions_401k",
+    "convert",
+    "epf_accessible",
+    "epf_project",
+    "fd_maturity",
+    "fd_value_at",
+    "forecast_vest_cash",
+    "generate_vest_schedule",
+    "grant_totals",
+    "input_hash",
+    "inverse",
+    "loan_principal",
+    "mortgage_payment",
+    "project_savings",
+    "q_money",
+    "q_rate",
+    "q_shares",
+    "reconcile_vest",
+    "result_checksum",
+    "run_scenario",
+    "to_decimal",
+    "usd_inr_at_month",
+    "usd_inr_path",
+    "vest_totals",
+]
