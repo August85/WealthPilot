@@ -1,0 +1,22 @@
+{
+  "name": "wealthpilot",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "contracts:test": "pnpm --filter @wealthpilot/contracts test",
+    "contracts:typecheck": "pnpm --filter @wealthpilot/contracts typecheck",
+    "mobile:start": "pnpm --filter @wealthpilot/mobile start",
+    "mobile:ios": "pnpm --filter @wealthpilot/mobile ios",
+    "mobile:android": "pnpm --filter @wealthpilot/mobile android",
+    "mobile:web": "pnpm --filter @wealthpilot/mobile web",
+    "mobile:test": "pnpm --filter @wealthpilot/mobile test",
+    "mobile:lint": "pnpm --filter @wealthpilot/mobile lint",
+    "mobile:typecheck": "pnpm --filter @wealthpilot/mobile typecheck",
+    "mobile:export": "pnpm --filter @wealthpilot/mobile export:all",
+    "mobile:doctor": "pnpm --filter @wealthpilot/mobile doctor",
+    "check": "pnpm contracts:typecheck && pnpm contracts:test && pnpm mobile:typecheck && pnpm mobile:lint && pnpm mobile:test"
+  }
+}
