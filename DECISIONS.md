@@ -40,3 +40,8 @@ Product and engineering decisions for WealthPilot. Ambiguities are recorded here
 | Insights exposure thresholds | Client exposure indicators use fixed thresholds (medium ≥ 25%, high ≥ 50% of gross assets; liquidity medium < 25%, high < 10%), shown beside the indicator. Not advice. |
 | Purchases | Subscription screen shows §12 tiers with "proposed" prices; purchase buttons say "coming soon" until RevenueCat products exist. |
 
+
+## 2026-10-10 — iOS minimum and bundle ID
+
+- Minimum iOS is 17.0 (set through `expo-build-properties`), because the Clerk SDK requires it.
+- Bundle ID and Android package are `com.katyayan.wealthpilot`. `com.wealthpilot.app` is registered to another Apple team. This ID cannot change after the first App Store release.
