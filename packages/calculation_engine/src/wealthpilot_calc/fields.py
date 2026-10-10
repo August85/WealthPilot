@@ -18,6 +18,9 @@ def _coerce_decimal(value: Any) -> Any:
     return value
 
 
+coerce_decimal = _coerce_decimal
+"""Public alias: BeforeValidator that turns str/int into Decimal and rejects floats/bools."""
+
 _ser = PlainSerializer(fmt, return_type=str, when_used="json")
 
 Dec = Annotated[Decimal, BeforeValidator(_coerce_decimal), _ser]
