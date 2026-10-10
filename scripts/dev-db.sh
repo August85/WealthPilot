@@ -16,6 +16,9 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PGDATA_DIR="$ROOT/var/pg"
 DB_NAME="wealthpilot"
 
+# Debian/Ubuntu install server binaries outside PATH.
+for d in /usr/lib/postgresql/*/bin; do [ -d "$d" ] && PATH="$PATH:$d"; done
+
 have() { command -v "$1" >/dev/null 2>&1; }
 
 use_docker() { have docker && docker info >/dev/null 2>&1; }

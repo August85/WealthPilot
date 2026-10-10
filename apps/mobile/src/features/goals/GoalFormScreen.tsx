@@ -39,6 +39,11 @@ function toBody(f: GoalForm) {
   });
 }
 
+function requireGoal(goal: Goal | undefined): Goal {
+  if (!goal) throw new Error('No goal loaded');
+  return goal;
+}
+
 /** S13 goal create/edit. */
 export default function GoalFormScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -84,10 +89,11 @@ function GoalEditor({ goal }: { goal?: Goal }) {
     },
   });
   const update = useApiMutation(
-    (api, f: GoalForm) => api.goals.update(goal!.id, { ...toBody(f), version: goal!.version }),
+    // No non-null assertions in callbacks: the React Compiler hoists `goal!.id` into render, which crashes on create.
+    (api, f: GoalForm) => api.goals.update(requireGoal(goal).id, { ...toBody(f), version: requireGoal(goal).version }),
     { invalidate: inv, onSuccess: () => router.back(), conflict: { entity: 'this goal' } },
   );
-  const remove = useApiMutation((api) => api.goals.remove(goal!.id), { invalidate: inv, onSuccess: () => router.back() });
+  const remove = useApiMutation((api) => api.goals.remove(requireGoal(goal).id), { invalidate: inv, onSuccess: () => router.back() });
   const mutation = goal ? update : create;
 
   const body = (

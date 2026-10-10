@@ -665,7 +665,7 @@ export interface ScenarioAssumptions {
     withholding_rate: DecimalString;
     additional_tax_rate: DecimalString;
     annual_refresh_value: DecimalString;
-  };
+  } | null;
   retirement_401k: {
     employee_contribution_annual: DecimalString;
     employer_match_rate: DecimalString;
@@ -684,7 +684,7 @@ export interface ScenarioAssumptions {
     healthcare_monthly_today: DecimalString;
     healthcare_inflation_annual: DecimalString;
     social_security_monthly_today: DecimalString;
-    social_security_start_age: number;
+    social_security_start_age: number | null;
     withdrawal_order: WithdrawalBucket[];
     withdrawal_tax_rate: DecimalString;
   };

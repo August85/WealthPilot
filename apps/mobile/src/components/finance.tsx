@@ -286,7 +286,7 @@ export function WarningPanel({
   const order: Severity[] = ['critical', 'warning', 'info'];
   const sorted = [...warnings].sort((a, b) => order.indexOf(a.severity) - order.indexOf(b.severity));
   return (
-    <Card testID={testID} tone={sorted[0]!.severity === 'critical' ? 'danger' : sorted[0]!.severity === 'warning' ? 'warning' : 'info'}>
+    <Card testID={testID} tone={sorted[0]?.severity === 'critical' ? 'danger' : sorted[0]?.severity === 'warning' ? 'warning' : 'info'}>
       <Text variant="heading">{title}</Text>
       <Stack gap={10}>
         {sorted.map((w, i) => {

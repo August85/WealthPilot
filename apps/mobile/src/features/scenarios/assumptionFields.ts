@@ -114,6 +114,7 @@ export const ASSUMPTION_SECTIONS: AssumptionSection[] = [
   {
     key: 'rsu',
     title: 'RSUs',
+    nullable: true,
     description: 'Unvested equity is never counted as current liquid assets; future vests appear only under these assumptions.',
     fields: [
       { path: 'rsu.price_now', label: 'Share price now (your entry)', kind: 'money' },
@@ -167,7 +168,7 @@ export const ASSUMPTION_SECTIONS: AssumptionSection[] = [
       { path: 'retirement.healthcare_monthly_today', label: 'Healthcare per month (today’s money)', kind: 'money' },
       { path: 'retirement.healthcare_inflation_annual', label: 'Healthcare inflation (%/yr)', kind: 'percent' },
       { path: 'retirement.social_security_monthly_today', label: 'Social Security per month (your estimate)', kind: 'money', helper: 'Unverified until you source it from your SSA statement.' },
-      { path: 'retirement.social_security_start_age', label: 'Social Security start age', kind: 'int' },
+      { path: 'retirement.social_security_start_age', label: 'Social Security start age (optional)', kind: 'nullableInt' },
       { path: 'retirement.withdrawal_tax_rate', label: 'Withdrawal tax rate (%, illustrative)', kind: 'percent' },
     ],
   },
@@ -204,7 +205,7 @@ export const ASSUMPTION_SECTIONS: AssumptionSection[] = [
 
 export interface AssumptionsForm {
   values: Record<string, unknown>;
-  enabled: { retirement_401k: boolean; epf: boolean; home: boolean };
+  enabled: { rsu: boolean; retirement_401k: boolean; epf: boolean; home: boolean };
   withdrawal_order: string[];
   notes: string;
 }
@@ -226,6 +227,15 @@ function setPath(obj: Record<string, unknown>, path: string, value: unknown) {
 
 /** Default blocks used when a nullable section is switched on without server defaults. */
 const EMPTY_SECTIONS = {
+  rsu: {
+    price_now: '0',
+    price_growth_annual: '0',
+    strategy: 'sell_on_vest',
+    sell_fraction: '0',
+    withholding_rate: '0',
+    additional_tax_rate: '0',
+    annual_refresh_value: '0',
+  },
   retirement_401k: { employee_contribution_annual: '0', employer_match_rate: '0', match_up_to_pct_of_salary: '0', contribution_limit_annual: '0', access_age: '59.5' },
   epf: { interest_rate_annual: '0', monthly_contribution: '0', accessible_from_age: null },
 };
@@ -234,6 +244,7 @@ export function assumptionsToForm(a: ScenarioAssumptions, notes = ''): Assumptio
   const values: Record<string, unknown> = {};
   const src = {
     ...a,
+    rsu: a.rsu ?? EMPTY_SECTIONS.rsu,
     retirement_401k: a.retirement_401k ?? EMPTY_SECTIONS.retirement_401k,
     epf: a.epf ?? EMPTY_SECTIONS.epf,
   } as unknown as Record<string, unknown>;
@@ -250,7 +261,7 @@ export function assumptionsToForm(a: ScenarioAssumptions, notes = ''): Assumptio
   }
   return {
     values,
-    enabled: { retirement_401k: !!a.retirement_401k, epf: !!a.epf, home: !!a.home },
+    enabled: { rsu: !!a.rsu, retirement_401k: !!a.retirement_401k, epf: !!a.epf, home: !!a.home },
     withdrawal_order: a.retirement?.withdrawal_order?.length ? [...a.retirement.withdrawal_order] : [...WITHDRAWAL_BUCKETS],
     notes,
   };
@@ -260,7 +271,7 @@ export function assumptionsToForm(a: ScenarioAssumptions, notes = ''): Assumptio
 export function formToAssumptions(form: AssumptionsForm, base?: ScenarioAssumptions): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const s of ASSUMPTION_SECTIONS) {
-    if (s.nullable && !form.enabled[s.key as 'retirement_401k' | 'epf' | 'home']) {
+    if (s.nullable && !form.enabled[s.key as keyof AssumptionsForm['enabled']]) {
       out[s.key] = null;
       continue;
     }

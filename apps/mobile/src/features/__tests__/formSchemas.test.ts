@@ -159,6 +159,19 @@ describe('scenario assumptions form', () => {
     form.enabled.home = false;
     expect(formToAssumptions(form, assumptions).home).toBeNull();
   });
+
+  it('accepts server defaults for a household with no RSUs and no Social Security age', () => {
+    // GET /scenarios/defaults returns rsu: null and social_security_start_age: null for a new user.
+    const fresh = { ...assumptions, rsu: null, retirement: { ...assumptions.retirement, social_security_start_age: null } };
+    const form = assumptionsToForm(fresh);
+    expect(form.enabled.rsu).toBe(false);
+    const res = validateAssumptions(formToAssumptions(form, fresh));
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      expect(res.value.rsu).toBeNull();
+      expect(res.value.retirement.social_security_start_age).toBeNull();
+    }
+  });
 });
 
 describe('export and notification helpers', () => {

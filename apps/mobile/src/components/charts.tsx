@@ -142,7 +142,7 @@ export function ProjectionChart({
               )}
               {kind === 'line'
                 ? nums.map((vals, si) => (
-                    <G key={series[si]!.key}>
+                    <G key={series[si]?.key ?? si}>
                       <Path
                         d={linePath(vals, xAt, yAt)}
                         stroke={t.colors.chart[si % t.colors.chart.length]}
@@ -167,7 +167,7 @@ export function ProjectionChart({
                     const groupW = n > 0 ? plotW / n : plotW;
                     const barW = Math.max(2, (groupW * 0.8) / series.length);
                     return (
-                      <G key={series[si]!.key}>
+                      <G key={series[si]?.key ?? si}>
                         {vals.map((v, i) => {
                           if (v === null) return null;
                           const x = padL + i * groupW + groupW * 0.1 + si * barW;

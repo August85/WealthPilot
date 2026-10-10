@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from alembic import context
 from wealthpilot_api.core.config import Settings
 from wealthpilot_api.models import Base
 

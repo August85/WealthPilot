@@ -14,3 +14,33 @@ packages/calculation_engine/  Pure-Python financial calculations (golden-tested)
 packages/contracts/           OpenAPI document + generated TypeScript types
 docs/                         API contract, ADRs
 ```
+
+## Run it locally
+
+Requirements: Python 3.12+ with [uv](https://docs.astral.sh/uv/), Node 22 with pnpm 10, and PostgreSQL 16 (or Docker).
+
+```bash
+# 1. Database (Docker if available, else a local cluster on 127.0.0.1:55432)
+scripts/dev-db.sh up && scripts/dev-db.sh migrate
+
+# 2. API on :8000 with dev sign-in (never enable dev auth in production)
+cd services/api && cp .env.example .env && uv sync
+uv run uvicorn wealthpilot_api.main:app --reload --port 8000
+uv run python scripts/seed_dev.py            # optional: fictional spec §16 household for user "demo"
+
+# 3. Mobile app
+cd apps/mobile && cp .env.example .env && cd ../.. && pnpm install
+pnpm mobile:start                             # Expo Go / dev build; press w for web
+```
+
+With no Clerk key set and `EXPO_PUBLIC_DEV_AUTH=1`, the app shows a labelled **Dev sign-in**; use subject `demo` and email `demo@example.test` to see the seeded household.
+
+## Checks
+
+```bash
+(cd packages/calculation_engine && uv run pytest -q)   # golden vectors and calculation tests
+(cd services/api && uv run pytest -q)                  # API tests against Postgres
+pnpm check                                             # contracts + mobile typecheck, lint, tests
+```
+
+CI runs all of these on every pull request (`.github/workflows/ci.yml`).

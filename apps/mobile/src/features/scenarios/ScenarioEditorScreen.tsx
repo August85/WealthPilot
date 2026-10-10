@@ -132,7 +132,7 @@ function Editor({ scenario: s, focus }: { scenario: Scenario; focus?: SectionKey
           icon="analytics-outline"
           title={`Latest run: ${s.latest_run.status}`}
           subtitle={`Started ${formatTimestamp(s.latest_run.created_at)}`}
-          onPress={() => router.push({ pathname: '/runs/[id]', params: { id: s.latest_run!.id, scenario: s.id } })}
+          onPress={() => router.push({ pathname: '/runs/[id]', params: { id: s.latest_run?.id ?? '', scenario: s.id } })}
         />
       ) : null}
 

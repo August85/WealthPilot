@@ -78,7 +78,7 @@ export function PlannerShell({
                     label={selected.latest_run ? 'Run again' : 'Run'}
                     icon="play"
                     loading={run.isPending}
-                    onPress={() => run.mutate(selected.active_version!.id)}
+                    onPress={() => run.mutate(selected.active_version?.id ?? '')}
                     testID="planner-run"
                   />
                 ) : null}

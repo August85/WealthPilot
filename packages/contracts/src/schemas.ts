@@ -3,7 +3,7 @@
  * They validate shape and basic invariants client-side; the API remains authoritative.
  * Money, quantities and rates stay decimal strings end to end.
  */
-import { z } from 'zod';
+import { z } from "zod";
 
 import {
   ACCESSIBILITIES,
@@ -32,7 +32,7 @@ import {
   WITHDRAWAL_BUCKETS,
   isAssetType,
   isLiabilityType,
-} from './enums';
+} from "./enums";
 
 // ---------------------------------------------------------------------------
 // Primitives
@@ -43,42 +43,54 @@ const NON_NEGATIVE_DECIMAL_RE = /^\d+(\.\d+)?$/;
 const DATE_RE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 
 /** A decimal string such as "1234.56" or "-0.5". No exponent, no thousands separators. */
-export const decimalString = z.string().trim().regex(DECIMAL_RE, 'Enter a number like 1234.56');
+export const decimalString = z
+  .string()
+  .trim()
+  .regex(DECIMAL_RE, "Enter a number like 1234.56");
 /** A decimal string ≥ 0. */
 export const nonNegativeDecimal = z
   .string()
   .trim()
-  .regex(NON_NEGATIVE_DECIMAL_RE, 'Enter a number of zero or more, like 1234.56');
+  .regex(
+    NON_NEGATIVE_DECIMAL_RE,
+    "Enter a number of zero or more, like 1234.56",
+  );
 /** A fractional rate like "0.0625" (6.25%). Must be between 0 and 1 inclusive. */
-export const rateDecimal = nonNegativeDecimal.refine((v) => compareDecimal(v, '1') <= 0, {
-  message: 'Rates are fractions between 0 and 1 (e.g. 0.0625 for 6.25%)',
-});
+export const rateDecimal = nonNegativeDecimal.refine(
+  (v) => compareDecimal(v, "1") <= 0,
+  {
+    message: "Rates are fractions between 0 and 1 (e.g. 0.0625 for 6.25%)",
+  },
+);
 /** A rate that may be negative (e.g. a return or depreciation assumption), between -1 and 1. */
 export const signedRateDecimal = decimalString.refine(
-  (v) => compareDecimal(v, '1') <= 0 && compareDecimal(v, '-1') >= 0,
-  { message: 'Rates are fractions between -1 and 1 (e.g. -0.02 for −2%)' },
+  (v) => compareDecimal(v, "1") <= 0 && compareDecimal(v, "-1") >= 0,
+  { message: "Rates are fractions between -1 and 1 (e.g. -0.02 for −2%)" },
 );
 /** A positive decimal (> 0). */
-export const positiveDecimal = nonNegativeDecimal.refine((v) => compareDecimal(v, '0') > 0, {
-  message: 'Must be greater than zero',
-});
+export const positiveDecimal = nonNegativeDecimal.refine(
+  (v) => compareDecimal(v, "0") > 0,
+  {
+    message: "Must be greater than zero",
+  },
+);
 export const percent100Decimal = nonNegativeDecimal.refine(
-  (v) => compareDecimal(v, '100') <= 0 && compareDecimal(v, '0') > 0,
-  { message: 'Ownership must be more than 0 and at most 100' },
+  (v) => compareDecimal(v, "100") <= 0 && compareDecimal(v, "0") > 0,
+  { message: "Ownership must be more than 0 and at most 100" },
 );
 
 export const isoDate = z
   .string()
   .trim()
-  .regex(DATE_RE, 'Use the date format YYYY-MM-DD')
-  .refine((v) => isRealDate(v), { message: 'Not a real calendar date' });
+  .regex(DATE_RE, "Use the date format YYYY-MM-DD")
+  .refine((v) => isRealDate(v), { message: "Not a real calendar date" });
 
 export const countrySchema = z.enum(COUNTRIES);
 export const reportingCurrencySchema = z.enum(CURRENCIES);
 export const currencyCodeSchema = z
   .string()
   .trim()
-  .regex(/^[A-Z]{3}$/, 'Use a 3-letter ISO currency code');
+  .regex(/^[A-Z]{3}$/, "Use a 3-letter ISO currency code");
 
 /**
  * Compare two decimal strings exactly (no float conversion). Returns -1, 0 or 1.
@@ -99,12 +111,12 @@ export function compareDecimal(a: string, b: string): -1 | 0 | 1 {
 
 function splitDecimal(v: string) {
   const s = v.trim();
-  const neg = s.startsWith('-');
+  const neg = s.startsWith("-");
   const body = neg ? s.slice(1) : s;
-  const [intRaw = '0', fracRaw = ''] = body.split('.');
-  const int = intRaw.replace(/^0+(?=\d)/, '');
-  const frac = fracRaw.replace(/0+$/, '');
-  const zero = /^0*$/.test(int) && frac === '';
+  const [intRaw = "0", fracRaw = ""] = body.split(".");
+  const int = intRaw.replace(/^0+(?=\d)/, "");
+  const frac = fracRaw.replace(/0+$/, "");
+  const zero = /^0*$/.test(int) && frac === "";
   return { neg, int, frac, zero };
 }
 
@@ -112,20 +124,25 @@ function compareMagnitude(
   a: { int: string; frac: string },
   b: { int: string; frac: string },
 ): -1 | 0 | 1 {
-  if (a.int.length !== b.int.length) return a.int.length > b.int.length ? 1 : -1;
+  if (a.int.length !== b.int.length)
+    return a.int.length > b.int.length ? 1 : -1;
   if (a.int !== b.int) return a.int > b.int ? 1 : -1;
   const len = Math.max(a.frac.length, b.frac.length);
-  const fa = a.frac.padEnd(len, '0');
-  const fb = b.frac.padEnd(len, '0');
+  const fa = a.frac.padEnd(len, "0");
+  const fb = b.frac.padEnd(len, "0");
   if (fa === fb) return 0;
   return fa > fb ? 1 : -1;
 }
 
 function isRealDate(v: string): boolean {
-  const [y, m, d] = v.split('-').map((p) => Number.parseInt(p, 10));
+  const [y, m, d] = v.split("-").map((p) => Number.parseInt(p, 10));
   if (!y || !m || !d) return false;
   const dt = new Date(Date.UTC(y, m - 1, d));
-  return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
+  return (
+    dt.getUTCFullYear() === y &&
+    dt.getUTCMonth() === m - 1 &&
+    dt.getUTCDate() === d
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -141,8 +158,8 @@ export const taxResidencyPeriodInputSchema = z
     verified_by_user: z.boolean().optional(),
   })
   .refine((p) => p.to_date === null || p.to_date >= p.from_date, {
-    message: 'End date must be on or after the start date',
-    path: ['to_date'],
+    message: "End date must be on or after the start date",
+    path: ["to_date"],
   });
 
 export const meUpdateSchema = z
@@ -158,11 +175,14 @@ export const meUpdateSchema = z
 export const onboardingRequestSchema = z.object({
   home_country: countrySchema,
   reporting_currency: reportingCurrencySchema,
-  household_name: z.string().trim().min(1, 'Name your household').max(100),
+  household_name: z.string().trim().min(1, "Name your household").max(100),
   disclaimer_accepted: z.literal(true, {
-    error: 'You must acknowledge that WealthPilot is not tax, legal or investment advice',
+    error:
+      "You must acknowledge that WealthPilot is not tax, legal or investment advice",
   }),
-  tax_residency: z.array(taxResidencyPeriodInputSchema).min(1, 'Add at least one tax residency period'),
+  tax_residency: z
+    .array(taxResidencyPeriodInputSchema)
+    .min(1, "Add at least one tax residency period"),
 });
 
 export const taxResidencyReplaceSchema = z.object({
@@ -170,7 +190,7 @@ export const taxResidencyReplaceSchema = z.object({
 });
 
 export const deleteRequestSchema = z.object({
-  confirm: z.literal('DELETE', { error: 'Type DELETE to confirm' }),
+  confirm: z.literal("DELETE", { error: "Type DELETE to confirm" }),
 });
 
 export const householdUpdateSchema = z
@@ -208,7 +228,10 @@ export const retirement401kDetailsSchema = z
   .partial();
 
 export const iraHsaDetailsSchema = z
-  .object({ annual_contribution: nonNegativeDecimal, access_age: positiveDecimal })
+  .object({
+    annual_contribution: nonNegativeDecimal,
+    access_age: positiveDecimal,
+  })
   .partial();
 
 export const epfDetailsSchema = z
@@ -241,8 +264,8 @@ export const fixedDepositDetailsSchema = z
     tds_rate: rateDecimal.optional(),
   })
   .refine((d) => d.maturity_date > d.start_date, {
-    message: 'Maturity date must be after the start date',
-    path: ['maturity_date'],
+    message: "Maturity date must be after the start date",
+    path: ["maturity_date"],
   });
 
 export const holdingSchema = z.object({
@@ -277,22 +300,22 @@ export const liabilityDetailsSchema = z
 /** Returns the details schema for an account type. */
 export function detailsSchemaFor(type: string): z.ZodType {
   switch (type) {
-    case 'retirement_401k':
+    case "retirement_401k":
       return retirement401kDetailsSchema;
-    case 'ira_traditional':
-    case 'ira_roth':
-    case 'hsa':
+    case "ira_traditional":
+    case "ira_roth":
+    case "hsa":
       return iraHsaDetailsSchema;
-    case 'epf':
+    case "epf":
       return epfDetailsSchema;
-    case 'ppf':
+    case "ppf":
       return ppfDetailsSchema;
-    case 'fixed_deposit':
+    case "fixed_deposit":
       return fixedDepositDetailsSchema;
-    case 'brokerage':
-    case 'mutual_fund':
+    case "brokerage":
+    case "mutual_fund":
       return investmentDetailsSchema;
-    case 'real_estate':
+    case "real_estate":
       return realEstateDetailsSchema;
     default:
       if (isLiabilityType(type)) return liabilityDetailsSchema;
@@ -301,7 +324,7 @@ export function detailsSchemaFor(type: string): z.ZodType {
 }
 
 const accountBaseShape = {
-  name: z.string().trim().min(1, 'Give the account a name').max(100),
+  name: z.string().trim().min(1, "Give the account a name").max(100),
   country: countrySchema,
   currency: currencyCodeSchema,
   accessibility: z.enum(ACCESSIBILITIES).optional(),
@@ -320,17 +343,29 @@ export const accountCreateSchema = z
     initial_valuation: initialValuationSchema.optional(),
   })
   .superRefine((v, ctx) => {
-    if (v.kind === 'asset' && !isAssetType(v.type)) {
-      ctx.addIssue({ code: 'custom', message: 'Pick an asset type', path: ['type'] });
+    if (v.kind === "asset" && !isAssetType(v.type)) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Pick an asset type",
+        path: ["type"],
+      });
     }
-    if (v.kind === 'liability' && !isLiabilityType(v.type)) {
-      ctx.addIssue({ code: 'custom', message: 'Pick a liability type', path: ['type'] });
+    if (v.kind === "liability" && !isLiabilityType(v.type)) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Pick a liability type",
+        path: ["type"],
+      });
     }
     if (v.details) {
       const res = detailsSchemaFor(v.type).safeParse(v.details);
       if (!res.success) {
         for (const issue of res.error.issues) {
-          ctx.addIssue({ code: 'custom', message: issue.message, path: ['details', ...issue.path] });
+          ctx.addIssue({
+            code: "custom",
+            message: issue.message,
+            path: ["details", ...issue.path],
+          });
         }
       }
     }
@@ -365,7 +400,10 @@ export const fxRateCreateSchema = z
     rate: positiveDecimal,
     as_of: isoDate,
   })
-  .refine((v) => v.base !== v.quote, { message: 'Base and quote must differ', path: ['quote'] });
+  .refine((v) => v.base !== v.quote, {
+    message: "Base and quote must differ",
+    path: ["quote"],
+  });
 
 export const priceCreateSchema = z.object({
   symbol: z.string().trim().min(1).max(20),
@@ -386,13 +424,13 @@ export const vestScheduleSchema = z
     total_months: z.number().int().min(1).max(240),
   })
   .refine((s) => s.cliff_months <= s.total_months, {
-    message: 'Cliff cannot be longer than the total vesting period',
-    path: ['cliff_months'],
+    message: "Cliff cannot be longer than the total vesting period",
+    path: ["cliff_months"],
   });
 
 export const rsuGrantCreateSchema = z.object({
-  employer_name: z.string().trim().min(1, 'Employer is required').max(100),
-  symbol: z.string().trim().min(1, 'Ticker symbol is required').max(20),
+  employer_name: z.string().trim().min(1, "Employer is required").max(100),
+  symbol: z.string().trim().min(1, "Ticker symbol is required").max(20),
   grant_date: isoDate,
   granted_shares: positiveDecimal,
   award_currency: currencyCodeSchema,
@@ -435,14 +473,18 @@ export const rsuVestUpdateSchema = z
     if (v.withheld_shares != null && v.vested_shares != null) {
       if (compareDecimal(v.withheld_shares, v.vested_shares) > 0) {
         ctx.addIssue({
-          code: 'custom',
-          message: 'Withheld shares cannot exceed vested shares',
-          path: ['withheld_shares'],
+          code: "custom",
+          message: "Withheld shares cannot exceed vested shares",
+          path: ["withheld_shares"],
         });
       }
     }
-    if (v.status === 'vested' && v.vested_shares == null) {
-      ctx.addIssue({ code: 'custom', message: 'Enter the shares that vested', path: ['vested_shares'] });
+    if (v.status === "vested" && v.vested_shares == null) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Enter the shares that vested",
+        path: ["vested_shares"],
+      });
     }
   });
 
@@ -460,7 +502,7 @@ export const rsuDispositionCreateSchema = z.object({
 
 export const goalCreateSchema = z.object({
   type: z.enum(GOAL_TYPES),
-  name: z.string().trim().min(1, 'Name the goal').max(100),
+  name: z.string().trim().min(1, "Name the goal").max(100),
   target_date: isoDate,
   target_amount: positiveDecimal,
   currency: currencyCodeSchema,
@@ -547,15 +589,17 @@ export const scenarioAssumptionsSchema = z
       inr_depreciation_annual: signedRateDecimal,
       transfer_cost_pct: rateDecimal,
     }),
-    rsu: z.object({
-      price_now: nonNegativeDecimal,
-      price_growth_annual: signedRateDecimal,
-      strategy: z.enum(RSU_STRATEGIES),
-      sell_fraction: rateDecimal,
-      withholding_rate: rateDecimal,
-      additional_tax_rate: rateDecimal,
-      annual_refresh_value: nonNegativeDecimal,
-    }),
+    rsu: z
+      .object({
+        price_now: nonNegativeDecimal,
+        price_growth_annual: signedRateDecimal,
+        strategy: z.enum(RSU_STRATEGIES),
+        sell_fraction: rateDecimal,
+        withholding_rate: rateDecimal,
+        additional_tax_rate: rateDecimal,
+        annual_refresh_value: nonNegativeDecimal,
+      })
+      .nullable(),
     retirement_401k: z
       .object({
         employee_contribution_annual: nonNegativeDecimal,
@@ -578,7 +622,7 @@ export const scenarioAssumptionsSchema = z
       healthcare_monthly_today: nonNegativeDecimal,
       healthcare_inflation_annual: signedRateDecimal,
       social_security_monthly_today: nonNegativeDecimal,
-      social_security_start_age: z.number().int().min(50).max(110),
+      social_security_start_age: z.number().int().min(50).max(110).nullable(),
       withdrawal_order: z.array(z.enum(WITHDRAWAL_BUCKETS)).min(1),
       withdrawal_tax_rate: rateDecimal,
     }),
@@ -587,22 +631,22 @@ export const scenarioAssumptionsSchema = z
   .superRefine((a, ctx) => {
     if (a.household.retirement_age < a.household.current_age) {
       ctx.addIssue({
-        code: 'custom',
-        message: 'Retirement age must be at least your current age',
-        path: ['household', 'retirement_age'],
+        code: "custom",
+        message: "Retirement age must be at least your current age",
+        path: ["household", "retirement_age"],
       });
     }
     if (a.household.life_expectancy <= a.household.retirement_age) {
       ctx.addIssue({
-        code: 'custom',
-        message: 'Life expectancy must be after retirement age',
-        path: ['household', 'life_expectancy'],
+        code: "custom",
+        message: "Life expectancy must be after retirement age",
+        path: ["household", "life_expectancy"],
       });
     }
   });
 
 export const scenarioCreateSchema = z.object({
-  name: z.string().trim().min(1, 'Name the scenario').max(100),
+  name: z.string().trim().min(1, "Name the scenario").max(100),
   kind: z.enum(SCENARIO_KINDS),
   preset: z.enum(SCENARIO_PRESETS),
   goal_id: z.guid().nullable().optional(),
@@ -619,7 +663,7 @@ export const scenarioUpdateSchema = z
   .partial();
 
 export const scenarioCloneSchema = z.object({
-  name: z.string().trim().min(1, 'Name the copy').max(100),
+  name: z.string().trim().min(1, "Name the copy").max(100),
 });
 
 export const scenarioVersionCreateSchema = z.object({
@@ -630,7 +674,10 @@ export const scenarioVersionCreateSchema = z.object({
 export const runCreateSchema = z.object({ seed: z.number().int().nullable() });
 
 export const comparisonRequestSchema = z.object({
-  run_ids: z.array(z.guid()).min(1, 'Pick at least one run').max(4, 'Compare at most 4 runs'),
+  run_ids: z
+    .array(z.guid())
+    .min(1, "Pick at least one run")
+    .max(4, "Compare at most 4 runs"),
 });
 
 // ---------------------------------------------------------------------------
@@ -644,11 +691,19 @@ export const exportCreateSchema = z
     run_id: z.guid().optional(),
   })
   .superRefine((v, ctx) => {
-    if (v.scope === 'run' && !v.run_id) {
-      ctx.addIssue({ code: 'custom', message: 'Pick a scenario run to export', path: ['run_id'] });
+    if (v.scope === "run" && !v.run_id) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Pick a scenario run to export",
+        path: ["run_id"],
+      });
     }
-    if (v.format === 'pdf' && v.scope !== 'run') {
-      ctx.addIssue({ code: 'custom', message: 'PDF reports are only available for a scenario run', path: ['format'] });
+    if (v.format === "pdf" && v.scope !== "run") {
+      ctx.addIssue({
+        code: "custom",
+        message: "PDF reports are only available for a scenario run",
+        path: ["format"],
+      });
     }
   });
 

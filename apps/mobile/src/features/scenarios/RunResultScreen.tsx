@@ -34,7 +34,7 @@ export default function RunResultScreen() {
             label="Export PDF report"
             icon="document-outline"
             variant="secondary"
-            onPress={() => router.push({ pathname: '/export', params: { run: result.data!.run_id } })}
+            onPress={() => router.push({ pathname: '/export', params: { run: result.data?.run_id ?? '' } })}
           />
           <Disclaimer />
         </Stack>

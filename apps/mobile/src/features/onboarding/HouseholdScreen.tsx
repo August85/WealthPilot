@@ -25,14 +25,16 @@ export default function HouseholdScreen() {
     defaultValues: { household_name: 'Our household' },
   });
   const onboard = useApiMutation(
-    (api, name: string) =>
-      api.me.onboard({
-        home_country: residency!.home_country,
-        reporting_currency: residency!.reporting_currency,
+    (api, name: string) => {
+      if (!residency) throw new Error('Residency step not completed');
+      return api.me.onboard({
+        home_country: residency.home_country,
+        reporting_currency: residency.reporting_currency,
         household_name: name,
         disclaimer_accepted: true,
-        tax_residency: residency!.tax_residency,
-      }),
+        tax_residency: residency.tax_residency,
+      });
+    },
     {
       onSuccess: (me) => {
         qc.setQueryData(qk.me, me);
