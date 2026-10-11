@@ -58,7 +58,7 @@ If there is no Clerk key and dev auth is off, the welcome screen says that sign-
 3. **Google:** go to *SSO connections → Google*. For production, use your own Google OAuth client (web client ID and secret in Clerk).
 4. **Microsoft:** go to *SSO connections → Microsoft*. For production, register an Entra ID app and add Clerk's redirect URI to it.
 5. **Apple:** go to *SSO connections → Apple*. Add your Apple Services ID, Team ID, Key ID and private key in Clerk. Apple sign-in is offered on iOS and web, and `usesAppleSignIn` is already set in `app.json`.
-6. **Redirect URLs:** SSO returns to `wealthpilot://sso-callback`. Add that URL to Clerk's allowed redirect URLs under *Native applications*, and register the iOS bundle ID and Android package `com.wealthpilot.app` there.
+6. **Redirect URLs:** SSO returns to `wealthpilot://sso-callback`. Add that URL to Clerk's allowed redirect URLs under *Native applications*, and register the iOS bundle ID and Android package `com.katyayan.wealthpilot` there.
 7. **Passkeys:** enable passkeys in Clerk. Then set up the native associated domains:
    - Add `ios.associatedDomains: ["webcredentials:<your-clerk-frontend-api-domain>"]` to `app.json`.
    - Set up Android asset links for the same domain.
@@ -119,4 +119,4 @@ To set up and build:
 
 You need Apple and Google developer accounts, and push credentials (APNs key and FCM) set up through `eas credentials`.
 
-The bundle identifier and Android package are both `com.wealthpilot.app`.
+The bundle identifier and Android package are both `com.katyayan.wealthpilot`.

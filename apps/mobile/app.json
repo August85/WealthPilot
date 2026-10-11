@@ -8,7 +8,7 @@
     "scheme": "wealthpilot",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "com.wealthpilot.app",
+      "bundleIdentifier": "com.katyayan.wealthpilot",
       "supportsTablet": true,
       "usesAppleSignIn": true,
       "config": {
@@ -19,7 +19,7 @@
       }
     },
     "android": {
-      "package": "com.wealthpilot.app",
+      "package": "com.katyayan.wealthpilot",
       "adaptiveIcon": {
         "backgroundColor": "#0D1B2A",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -57,7 +57,15 @@
         }
       ],
       "expo-apple-authentication",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "17.0"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": false,
