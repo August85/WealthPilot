@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useForm, useWatch } from 'react-hook-form';
 
 import { SCENARIO_KINDS, SCENARIO_PRESETS, scenarioCreateSchema } from '@wealthpilot/contracts';
+import { PRESET_HELP, SCENARIO_KIND_LABELS } from '@wealthpilot/shared';
 
 import { FormError, MutationButton } from '@/components/app';
 import { ChoiceField, TextField } from '@/components/form';
@@ -12,13 +13,8 @@ import { useApiMutation, useGoals } from '@/lib/hooks';
 import { qk } from '@/lib/query';
 import { z } from 'zod';
 
-const KIND_LABELS = { home: 'Home purchase', retirement: 'Retirement', general: 'General' } as const;
-export const PRESET_HELP: Record<string, string> = {
-  baseline: 'Your data with neutral assumptions.',
-  conservative: 'Returns −2pp, inflation +1pp, INR depreciation +1pp, RSU growth −10pp, mortgage rate +1pp.',
-  optimistic: 'Returns +1pp, RSU growth +5pp, INR depreciation −1pp.',
-  custom: 'Start from baseline and edit anything.',
-};
+const KIND_LABELS = SCENARIO_KIND_LABELS;
+export { PRESET_HELP };
 
 const formSchema = scenarioCreateSchema.omit({ assumptions: true, goal_id: true }).extend({ goal_id: z.string() });
 type Form = z.infer<typeof formSchema>;

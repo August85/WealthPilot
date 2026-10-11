@@ -27,11 +27,5 @@ export function useAuthSession(): AuthSession {
   return useContext(AuthContext);
 }
 
-/** Validate dev-mode identity pieces; the token format is `dev:<subject>:<email>`. */
-export function buildDevToken(subject: string, email: string): string | null {
-  const s = subject.trim();
-  const e = email.trim().toLowerCase();
-  if (!/^[A-Za-z0-9_.-]{1,64}$/.test(s)) return null;
-  if (!/^[^\s:@]+@[^\s:@]+\.[^\s:@]+$/.test(e)) return null;
-  return `dev:${s}:${e}`;
-}
+/** Validate dev-mode identity pieces; the token format is `dev:<subject>:<email>` (shared with the web app). */
+export { buildDevToken } from '@wealthpilot/shared';

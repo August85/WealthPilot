@@ -1,21 +1,8 @@
 import type { Comparison } from '@wealthpilot/contracts';
 
-import { METRIC_LABELS, formatMetric } from '../features/scenarios/results';
+import { COMPARE_METRICS, METRIC_LABELS, formatMetric } from '@wealthpilot/shared';
 import { DataTable } from './charts';
 import { Stack, Text } from './primitives';
-
-const COMPARE_METRICS = [
-  'net_worth_now',
-  'liquid_net_worth_now',
-  'net_worth_at_retirement',
-  'retirement_balance_at_retirement',
-  'ending_balance_at_life_expectancy',
-  'first_deficit_age',
-  'years_in_deficit',
-  'home_funding_gap',
-  'home_earliest_feasible_date',
-  'home_all_in_monthly',
-] as const;
 
 /** Side-by-side metrics for up to four runs (FR-SCN-003). */
 export function ScenarioCompare({ comparison, currency }: { comparison: Comparison; currency: string }) {

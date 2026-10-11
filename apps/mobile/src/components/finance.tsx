@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import type { ReportingCurrency, Severity, VerificationStatus, Warning } from '@wealthpilot/contracts';
+import { DISCLAIMER_LONG, DISCLAIMER_SHORT, humanizeCode } from '@wealthpilot/shared';
 
 import { formatDate, formatMonthYear, relativeDays } from '../lib/dates';
 import { dec, formatRate } from '../lib/decimal';
@@ -309,10 +310,7 @@ export function WarningPanel({
   );
 }
 
-export function humanizeCode(code: string): string {
-  const s = code.toLowerCase().replace(/_/g, ' ');
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
+export { humanizeCode };
 
 // ---------------------------------------------------------------------------
 // RiskIndicator
@@ -514,9 +512,7 @@ export function Disclaimer({ compact }: { compact?: boolean }) {
       <Row gap={8}>
         <Icon name="information-circle-outline" />
         <Text variant="caption" style={s.flex}>
-          {compact
-            ? 'Illustrative planning only — not tax, legal or investment advice.'
-            : 'WealthPilot is planning software. Figures are illustrative and based on your own inputs and assumptions. It is not tax, legal or investment advice; verify important decisions with a qualified professional.'}
+          {compact ? DISCLAIMER_SHORT : DISCLAIMER_LONG}
         </Text>
       </Row>
     </Card>
