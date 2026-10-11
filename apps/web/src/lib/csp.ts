@@ -1,7 +1,8 @@
 /**
  * Content-Security-Policy with a per-request nonce (set by `src/proxy.ts`). Scripts must carry the nonce
  * ('strict-dynamic' lets them load their own chunks); styles allow inline because React/Radix/Recharts set
- * style attributes. Connections are limited to this origin, the WealthPilot API and, when configured, Clerk.
+ * style attributes. Connections are limited to this origin, the WealthPilot API and, when configured, Clerk
+ * (its Frontend API, telemetry, and bot protection, which probes *.client.protect.clerk.com on several ports).
  */
 
 export interface CspOptions {
@@ -38,6 +39,7 @@ export function buildCsp({ nonce, apiUrl, clerkPublishableKey, dev }: CspOptions
   const api = originOf(apiUrl);
   const clerkHost = clerkFrontendApiHost(clerkPublishableKey);
   const clerk = clerkHost ? `https://${clerkHost}` : null;
+  const clerkServices = clerk && 'https://clerk-telemetry.com https://*.protect.clerk.com:*';
   const list = (...xs: (string | null | false)[]) => xs.filter(Boolean).join(' ');
 
   const directives: Record<string, string> = {
@@ -46,7 +48,7 @@ export function buildCsp({ nonce, apiUrl, clerkPublishableKey, dev }: CspOptions
     'style-src': "'self' 'unsafe-inline'",
     'img-src': list("'self'", 'data:', 'blob:', clerk && 'https://img.clerk.com'),
     'font-src': "'self' data:",
-    'connect-src': list("'self'", api, clerk, dev && 'ws:'),
+    'connect-src': list("'self'", api, clerk, clerkServices, dev && 'ws:'),
     'frame-src': list("'self'", clerk && 'https://challenges.cloudflare.com', clerk),
     'worker-src': "'self' blob:",
     'manifest-src': "'self'",
