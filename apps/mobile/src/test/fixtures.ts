@@ -132,7 +132,7 @@ export const goals: Goal[] = [
     details: {},
     version: 1,
     created_at: '2026-10-01T00:00:00Z',
-    progress: { funded_amount: '10000.00', pct: '0.05', as_of: '2026-10-10', scenario_run_id: null },
+    progress: { funded_amount: '10000.00', pct: '5.00', as_of: '2026-10-10', scenario_run_id: null },
   },
 ];
 

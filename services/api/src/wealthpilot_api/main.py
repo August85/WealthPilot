@@ -25,6 +25,7 @@ from .modules.goals import router as goals_router
 from .modules.health import router as health_router
 from .modules.households import router as households_router
 from .modules.jobs import maintenance as _maintenance  # noqa: F401 - registers job handler
+from .modules.jobs import router as cron_router
 from .modules.jobs.service import JobContext
 from .modules.market_data import router as market_router
 from .modules.notifications import router as notifications_router
@@ -56,7 +57,7 @@ def build_job_context(
         settings=settings,
         db_factory=db,
         services={
-            "storage": storage or make_storage(settings),
+            "storage": storage or make_storage(settings, db),
             "push": push or make_push_sender(settings, http),
             "http": http,
         },
@@ -75,7 +76,7 @@ def create_app(
     settings = settings or get_settings()
     configure_logging(settings.log_level)
     owns_resources = db is None
-    db = db or Database(settings.database_url)
+    db = db or Database(settings.database_url, pool_size=settings.db_pool_size)
     http = http or httpx.Client(
         timeout=settings.fx_reference_timeout_seconds, headers={"User-Agent": f"WealthPilot/{__version__}"}
     )
@@ -121,16 +122,18 @@ def create_app(
         notifications_router,
         billing_router,
         health_router,
+        cron_router,  # internal, excluded from the schema
     ):
         v1.include_router(module.router)
     app.include_router(v1)
     app.include_router(health_router.router, include_in_schema=False)  # probes also at the root
 
     app.add_middleware(IdempotencyMiddleware, prefix=API_PREFIX)
-    if settings.cors_origin_list:
+    if settings.cors_origin_list or settings.cors_origin_regex:
         app.add_middleware(
             CORSMiddleware,
             allow_origins=settings.cors_origin_list,
+            allow_origin_regex=settings.cors_origin_regex,
             allow_credentials=False,
             allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
             allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "X-Request-ID"],

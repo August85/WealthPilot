@@ -10,7 +10,7 @@ from .modules.households.models import Household, Membership, SessionRevocation,
 from .modules.jobs.models import IdempotencyKey, Job
 from .modules.market_data.models import FxRate, PriceQuote
 from .modules.notifications.models import Device, Notification, NotificationPreference
-from .modules.reports.models import ExportJob
+from .modules.reports.models import ExportArtifact, ExportJob
 from .modules.scenarios.models import Scenario, ScenarioVersion, SimulationRun
 
 __all__ = [
@@ -19,6 +19,7 @@ __all__ = [
     "Base",
     "BillingEvent",
     "Device",
+    "ExportArtifact",
     "ExportJob",
     "FxRate",
     "Goal",

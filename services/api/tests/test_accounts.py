@@ -237,7 +237,7 @@ def test_free_plan_account_limit(alice: Api) -> None:
 
 
 def test_ac004_other_household_account_is_404(alice: Api, bob: Api) -> None:
-    acc = alice.account(amount="999")
+    acc = alice.account(amount="987654321")
     for r in (
         bob.get(f"/accounts/{acc['id']}"),
         bob.patch(f"/accounts/{acc['id']}", {"name": "x"}),
@@ -249,7 +249,7 @@ def test_ac004_other_household_account_is_404(alice: Api, bob: Api) -> None:
         ),
     ):
         assert r.status_code == 404, r.text
-        assert "999" not in r.text
+        assert "987654321" not in r.text
     assert bob.ok(bob.get("/accounts"))["items"] == []
     assert bob.ok(bob.get("/net-worth"))["gross_assets"] == "0.00"
 
