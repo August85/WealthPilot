@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { devSignInSchema } from '@wealthpilot/shared';
 import { z } from 'zod';
 
 import { FormError } from '@/components/app';
@@ -10,13 +11,7 @@ import { useAuthSession } from '@/lib/auth/AuthContext';
 import { env } from '@/lib/env';
 import { useState } from 'react';
 
-export const devSignInSchema = z.object({
-  subject: z
-    .string()
-    .trim()
-    .regex(/^[A-Za-z0-9_.-]{1,64}$/, 'Letters, numbers, dot, dash or underscore'),
-  email: z.string().trim().email('Enter a valid email'),
-});
+export { devSignInSchema };
 
 /**
  * Dev sign-in — only when EXPO_PUBLIC_DEV_AUTH=1 and no Clerk key. Sends `dev:<subject>:<email>` bearer

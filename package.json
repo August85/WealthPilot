@@ -17,6 +17,18 @@
     "mobile:typecheck": "pnpm --filter @wealthpilot/mobile typecheck",
     "mobile:export": "pnpm --filter @wealthpilot/mobile export:all",
     "mobile:doctor": "pnpm --filter @wealthpilot/mobile doctor",
-    "check": "pnpm contracts:typecheck && pnpm contracts:test && pnpm mobile:typecheck && pnpm mobile:lint && pnpm mobile:test"
+    "shared:test": "pnpm --filter @wealthpilot/shared test",
+    "shared:typecheck": "pnpm --filter @wealthpilot/shared typecheck",
+    "web:dev": "pnpm --filter @wealthpilot/web dev",
+    "web:build": "pnpm --filter @wealthpilot/web build",
+    "web:start": "pnpm --filter @wealthpilot/web start",
+    "web:test": "pnpm --filter @wealthpilot/web test",
+    "web:lint": "pnpm --filter @wealthpilot/web lint",
+    "web:typecheck": "pnpm --filter @wealthpilot/web typecheck",
+    "web:e2e": "pnpm --filter @wealthpilot/web e2e",
+    "check:packages": "pnpm contracts:typecheck && pnpm contracts:test && pnpm shared:typecheck && pnpm shared:test",
+    "check:mobile": "pnpm mobile:typecheck && pnpm mobile:lint && pnpm mobile:test",
+    "check:web": "pnpm web:typecheck && pnpm web:lint && pnpm web:test",
+    "check": "pnpm check:packages && pnpm check:mobile && pnpm check:web"
   }
 }

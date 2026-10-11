@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
-import type { NotificationPreference, NotificationType } from '@wealthpilot/contracts';
-import { NOTIFICATION_TYPES } from '@wealthpilot/contracts';
+import type { NotificationPreference } from '@wealthpilot/contracts';
+import { NOTIFICATION_TYPE_LABELS as TYPE_LABELS, normalizePreferences } from '@wealthpilot/shared';
 
 import { FormError, MutationButton, QueryView } from '@/components/app';
 import { SwitchRow } from '@/components/form';
@@ -15,18 +15,7 @@ import { hasRegisteredPush, registerForPush, unregisterPush } from '@/lib/push';
 import { qk } from '@/lib/query';
 import { useTheme } from '@/theme/ThemeProvider';
 
-const TYPE_LABELS: Record<NotificationType, { title: string; helper: string }> = {
-  vest_reminder: { title: 'RSU vest reminders', helper: 'A heads-up before a vest date. No amounts are shown.' },
-  stale_balance: { title: 'Stale balance reminders', helper: 'When a balance hasn’t been updated for a while.' },
-  goal_milestone: { title: 'Goal milestones', helper: 'When a goal passes a funding milestone.' },
-};
-
-/** Merge server preferences with every known type so all toggles render (all opt-in, default off). */
-export function normalizePreferences(items: NotificationPreference[]): NotificationPreference[] {
-  return NOTIFICATION_TYPES.map(
-    (type) => items.find((p) => p.type === type && p.channel === 'push') ?? { type, channel: 'push', enabled: false },
-  );
-}
+export { normalizePreferences };
 
 /** S20 Notifications: opt-in push preferences, device registration and the in-app inbox. */
 export default function NotificationsScreen() {

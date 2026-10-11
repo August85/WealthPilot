@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 
 import type { Insight, NetWorth, Severity } from '@wealthpilot/contracts';
+import { liquidityRisk, pctText as pct, riskLevel, shareOf } from '@wealthpilot/shared';
 
 import { QueryView } from '@/components/app';
 import { CurrencyToggle, Disclaimer, Pill, RiskIndicator } from '@/components/finance';
@@ -22,25 +23,7 @@ const SEVERITY_META: Record<Severity, { icon: IconName; label: string; tone: 'mu
 
 const SEVERITY_ORDER: Record<Severity, number> = { critical: 0, warning: 1, info: 2 };
 
-/** Share of `part` in `whole` as a fraction string (0..1), or null if undefined. Decimal arithmetic only. */
-export function shareOf(part: string | null | undefined, whole: string | null | undefined): string | null {
-  if (part == null || whole == null) return null;
-  const w = dec(whole);
-  if (w.lte(0)) return null;
-  return dec(part).div(w).toFixed(4);
-}
-
-function pct(fraction: string): string {
-  return `${dec(fraction).times(100).toDecimalPlaces(1).toString()}%`;
-}
-
-/** Deterministic thresholds for the risk indicators; documented beside the indicator. */
-export function riskLevel(fraction: string, medium: string, high: string): 'low' | 'medium' | 'high' {
-  const f = dec(fraction);
-  if (f.gte(high)) return 'high';
-  if (f.gte(medium)) return 'medium';
-  return 'low';
-}
+export { riskLevel, shareOf };
 
 /** S19 Insights: deterministic insights from the API plus exposure indicators from the net-worth breakdown. */
 export default function InsightsScreen() {
@@ -130,7 +113,7 @@ function Exposure({ nw }: { nw: NetWorth }) {
       ) : null}
       {liquidShare ? (
         <RiskIndicator
-          level={dec(liquidShare).lt('0.1') ? 'high' : dec(liquidShare).lt('0.25') ? 'medium' : 'low'}
+          level={liquidityRisk(liquidShare)}
           label="Low liquidity"
           detail={`${pct(liquidShare)} of net worth is liquid (medium < 25%, high < 10%)`}
         />

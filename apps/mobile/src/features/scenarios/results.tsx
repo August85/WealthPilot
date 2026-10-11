@@ -2,50 +2,17 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 
 import type { HomeResult, RunResult, ScenarioAssumptions, YearlyRow } from '@wealthpilot/contracts';
+import { METRIC_LABELS, deflate, formatAssumptionValue, formatMetric, type ForecastContext } from '@wealthpilot/shared';
 
 import { DataTable, ProjectionChart } from '@/components/charts';
 import { AssumptionRow, ForecastCard, KeyValue, WarningPanel } from '@/components/finance';
 import { Money } from '@/components/Money';
 import { Card, Chip, LinkRow, Row, Stack, Text } from '@/components/primitives';
 import { formatDate, formatMonthYear } from '@/lib/dates';
-import { D, dec, formatRate } from '@/lib/decimal';
+import { dec, formatRate } from '@/lib/decimal';
 import { formatMoney } from '@/lib/money';
 
-export interface ForecastContext {
-  asOf: string | null | undefined;
-  scenario: string | null | undefined;
-  assumptions: string | null | undefined;
-}
-
-export function contextLabel(versionNumber: number | null | undefined, inputHash: string | null | undefined): string {
-  const hash = inputHash ? inputHash.replace(/^sha256:/, '').slice(0, 8) : null;
-  return `${versionNumber != null ? `v${versionNumber}` : 'version —'}${hash ? ` · ${hash}` : ''}`;
-}
-
-export const METRIC_LABELS: Record<string, string> = {
-  net_worth_now: 'Net worth now',
-  liquid_net_worth_now: 'Liquid net worth now',
-  net_worth_at_retirement: 'Net worth at retirement',
-  retirement_balance_at_retirement: 'Retirement balance at retirement',
-  ending_balance_at_life_expectancy: 'Ending balance at life expectancy',
-  first_deficit_age: 'First deficit age',
-  years_in_deficit: 'Years in deficit',
-  home_cash_needed: 'Home: total cash needed',
-  home_cash_available_at_purchase: 'Home: cash available at purchase',
-  home_funding_gap: 'Home: funding gap',
-  home_earliest_feasible_date: 'Home: earliest feasible date',
-  home_pi_monthly: 'Home: principal & interest / month',
-  home_all_in_monthly: 'Home: all-in housing cost / month',
-  rsu_net_proceeds_to_purchase: 'Net RSU proceeds to purchase',
-};
-
-export function formatMetric(key: string, value: unknown, currency: string): string {
-  if (value === null || value === undefined) return '—';
-  if (key === 'first_deficit_age') return String(value);
-  if (key === 'years_in_deficit') return String(value);
-  if (key === 'home_earliest_feasible_date') return formatDate(String(value));
-  return formatMoney(String(value), currency);
-}
+export { METRIC_LABELS, contextLabel, deflate, formatMetric, type ForecastContext } from '@wealthpilot/shared';
 
 export function ExplainLink({ runId, metric, label }: { runId: string; metric: string; label?: string }) {
   return (
@@ -201,18 +168,6 @@ export function HomeResultView({ home, result, ctx }: { home: HomeResult; result
   );
 }
 
-/** Real value = nominal ÷ (1 + inflation)^(years since base). Display transform only; decimal math. */
-export function deflate(rows: YearlyRow[], key: keyof YearlyRow, inflation: string, baseYear: number): string[] {
-  const inf = dec(inflation).plus(1);
-  return rows.map((r) => {
-    const n = Math.max(0, r.year - baseYear);
-    return dec(r[key] as string)
-      .dividedBy(inf.pow(n))
-      .toDecimalPlaces(2, D.ROUND_HALF_UP)
-      .toFixed(2);
-  });
-}
-
 export function YearlyView({
   result,
   ctx,
@@ -311,9 +266,9 @@ export function SensitivityView({ result }: { result: RunResult }) {
         rows={result.sensitivity.map((s) => [
           s.label,
           METRIC_LABELS[s.metric] ?? s.metric,
-          `${formatMoney(s.low_result, c)} (${formatRate(s.low_input)})`,
+          `${formatMoney(s.low_result, c)} (${formatAssumptionValue(s.variable, s.low_input, c)})`,
           formatMoney(s.base_result, c),
-          `${formatMoney(s.high_result, c)} (${formatRate(s.high_input)})`,
+          `${formatMoney(s.high_result, c)} (${formatAssumptionValue(s.variable, s.high_input, c)})`,
         ])}
       />
     </Card>

@@ -30,7 +30,7 @@ describe('OverviewScreen', () => {
     expect(within(screen.getByTestId('country-split')).getByText(/₹8,50,000\.00/)).toBeTruthy();
     // Stale/estimated FD is listed under data freshness with its provenance.
     expect(within(screen.getByTestId('data-freshness')).getByText('SBI FD')).toBeTruthy();
-    // Goal progress pct is a fraction on the wire (0.05) and reads as 5%.
+    // Goal progress pct is a percentage on the wire (5.00) and reads as 5%.
     expect(await screen.findByLabelText(/Bay Area home: 5% funded/)).toBeTruthy();
   });
 
