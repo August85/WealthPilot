@@ -1,46 +1,20 @@
 import { useFieldArray } from 'react-hook-form';
-import { z } from 'zod';
 
-import { COUNTRIES, CURRENCIES, RESIDENCY_TYPES, isoDate } from '@wealthpilot/contracts';
+import { COUNTRIES, RESIDENCY_TYPES } from '@wealthpilot/contracts';
+import { emptyPeriod, type ResidencyFormInput } from '@wealthpilot/shared';
 
 import { ChoiceField, DateField, SwitchField, type FormControl } from '@/components/form';
 import { Button, Card, Row, Stack, Text } from '@/components/primitives';
 import { COUNTRY_LABELS, RESIDENCY_LABELS } from '@/lib/catalog';
 
-/** Form model shared by onboarding (S03) and the profile residency editor. Empty to_date = ongoing. */
-export const residencyPeriodFormSchema = z
-  .object({
-    jurisdiction: z.enum(COUNTRIES),
-    residency_type: z.enum(RESIDENCY_TYPES),
-    from_date: isoDate,
-    to_date: z.union([z.literal(''), isoDate]),
-    verified_by_user: z.boolean(),
-  })
-  .refine((p) => p.to_date === '' || p.to_date >= p.from_date, {
-    message: 'End date must be on or after the start date',
-    path: ['to_date'],
-  })
-  .transform((p) => ({ ...p, to_date: p.to_date === '' ? null : p.to_date }));
-
-export const residencyFormSchema = z.object({
-  home_country: z.enum(COUNTRIES),
-  reporting_currency: z.enum(CURRENCIES),
-  tax_residency: z.array(residencyPeriodFormSchema).min(1, 'Add at least one tax residency period'),
-  disclaimer_accepted: z.boolean().refine((v) => v === true, {
-    message: 'Please confirm you understand WealthPilot is not tax, legal or investment advice',
-  }),
-});
-
-export type ResidencyFormInput = z.input<typeof residencyFormSchema>;
-export type ResidencyFormOutput = z.output<typeof residencyFormSchema>;
-
-export const emptyPeriod = (): ResidencyFormInput['tax_residency'][number] => ({
-  jurisdiction: 'US',
-  residency_type: 'resident',
-  from_date: '',
-  to_date: '',
-  verified_by_user: false,
-});
+/** Form model (shared with the web app): onboarding (S03) and the profile residency editor. */
+export {
+  emptyPeriod,
+  residencyFormSchema,
+  residencyPeriodFormSchema,
+  type ResidencyFormInput,
+  type ResidencyFormOutput,
+} from '@wealthpilot/shared';
 
 export function ResidencyPeriodsEditor({ control }: { control: FormControl<ResidencyFormInput> }) {
   const { fields, append, remove } = useFieldArray({ control, name: 'tax_residency' });

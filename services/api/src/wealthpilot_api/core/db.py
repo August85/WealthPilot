@@ -10,8 +10,9 @@ from typing import Any
 
 from sqlalchemy import DateTime, MetaData, Numeric, create_engine, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
+from sqlalchemy.pool import NullPool
 from starlette.requests import Request
 
 NAMING = {
@@ -48,9 +49,28 @@ class TimestampMixin:
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 
 
+def engine_options(url: str, pool_size: int | None = None) -> dict[str, Any]:
+    """Engine keyword arguments.
+
+    ``pool_size=0`` disables in-process pooling (``NullPool``): on serverless hosts (Vercel) each instance may be
+    frozen between invocations, so connections are opened per request and pooled by the provider's PgBouncer
+    (Neon's ``-pooler`` host). PgBouncer in transaction mode does not keep server-side prepared statements across
+    transactions, so psycopg's automatic prepared statements are turned off for pooler hosts.
+    """
+    opts: dict[str, Any] = {"pool_pre_ping": True}
+    if pool_size == 0:
+        opts = {"poolclass": NullPool}
+    elif pool_size is not None:
+        opts["pool_size"] = pool_size
+    host = make_url(url).host or ""
+    if "-pooler" in host:
+        opts["connect_args"] = {"prepare_threshold": None}
+    return opts
+
+
 class Database:
-    def __init__(self, url: str, echo: bool = False) -> None:
-        self.engine: Engine = create_engine(url, echo=echo, pool_pre_ping=True, future=True)
+    def __init__(self, url: str, echo: bool = False, pool_size: int | None = None) -> None:
+        self.engine: Engine = create_engine(url, echo=echo, future=True, **engine_options(url, pool_size))
         self.sessionmaker = sessionmaker(self.engine, expire_on_commit=False, autoflush=False)
 
     def session(self) -> Session:

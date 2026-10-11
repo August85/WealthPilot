@@ -1,4 +1,9 @@
-"""Alembic environment: URL from WP_DATABASE_URL (or the ``sqlalchemy.url`` set by tests)."""
+"""Alembic environment.
+
+URL: the ``sqlalchemy.url`` set by tests, else ``WP_MIGRATION_DATABASE_URL``, else the direct (unpooled) URL the
+Neon integration injects (``DATABASE_URL_UNPOOLED`` / ``POSTGRES_URL_NON_POOLING``), else the API's database URL
+(``WP_DATABASE_URL`` / ``DATABASE_URL`` / ``POSTGRES_URL``). See ``wealthpilot_api.core.config``.
+"""
 
 from __future__ import annotations
 
@@ -13,7 +18,7 @@ target_metadata = Base.metadata
 
 
 def _url() -> str:
-    return config.get_main_option("sqlalchemy.url") or Settings().database_url
+    return config.get_main_option("sqlalchemy.url") or Settings().alembic_url
 
 
 def run_migrations_offline() -> None:

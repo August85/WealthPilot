@@ -7,6 +7,12 @@ import { useState } from 'react';
 import { Platform } from 'react-native';
 
 import type { ExportCreate, ExportFormat, ExportJob, ExportScope } from '@wealthpilot/contracts';
+import {
+  EXPORT_FORMAT_LABELS as FORMAT_LABELS,
+  EXPORT_SCOPE_LABELS as SCOPE_LABELS,
+  buildExportRequest,
+  formatsFor,
+} from '@wealthpilot/shared';
 
 import { FormError, MutationButton } from '@/components/app';
 import { Button, Card, Chip, Icon, LoadingState, Row, Screen, Stack, Text } from '@/components/primitives';
@@ -17,22 +23,7 @@ import { errorMessage, useApiMutation, useMe } from '@/lib/hooks';
 import { qk } from '@/lib/query';
 import { useTheme } from '@/theme/ThemeProvider';
 
-const SCOPE_LABELS: Record<ExportScope, { title: string; helper: string }> = {
-  balances: { title: 'Balances', helper: 'Accounts, valuations and their provenance' },
-  assumptions: { title: 'Assumptions', helper: 'Saved scenario versions and their inputs' },
-  run: { title: 'Scenario run report', helper: 'One run’s stored results, assumptions and warnings' },
-};
-
-const FORMAT_LABELS: Record<ExportFormat, string> = { csv: 'CSV', json: 'JSON', pdf: 'PDF report' };
-
-/** Formats allowed for a scope (contract: PDF only for scope=run). */
-export function formatsFor(scope: ExportScope): ExportFormat[] {
-  return scope === 'run' ? ['pdf', 'csv', 'json'] : ['csv', 'json'];
-}
-
-export function buildExportRequest(scope: ExportScope, format: ExportFormat, runId?: string): ExportCreate {
-  return scope === 'run' ? { scope, format, run_id: runId } : { scope, format };
-}
+export { buildExportRequest, formatsFor };
 
 /** S21 Data export: request, poll until ready, then open or share the short-lived download. */
 export default function ExportScreen() {

@@ -586,6 +586,7 @@ export interface Insight {
 
 export interface GoalProgress {
   funded_amount: DecimalString;
+  /** Percentage funded, 0-100 ("54.99" = 54.99%), capped at 100 by the API. Not a fraction. */
   pct: DecimalString;
   as_of: IsoDate;
   scenario_run_id: Uuid | null;

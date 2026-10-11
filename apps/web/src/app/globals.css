@@ -1,0 +1,205 @@
+@import 'tailwindcss';
+
+/* Class-based dark mode: <html class="dark"> is set before first paint by the theme script (system default + toggle). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Spec §17 palette: deep navy #0D1B2A, slate #243447, ivory #F8FAFC, teal #0D9488, amber #D97706, red #B91C1C.
+ * Text-on-colour pairs use darker/lighter shades of the same hues where needed to meet WCAG AA (4.5:1):
+ * e.g. white on teal #0D9488 is only 3.7:1, so filled buttons use teal-700 #0F766E (5.5:1).
+ */
+:root {
+  --wp-navy: #0d1b2a;
+  --wp-slate: #243447;
+  --wp-ivory: #f8fafc;
+  --wp-teal: #0d9488;
+  --wp-amber: #d97706;
+  --wp-red: #b91c1c;
+
+  --background: var(--wp-ivory);
+  --foreground: var(--wp-navy);
+  --card: #ffffff;
+  --card-foreground: var(--wp-navy);
+  --muted: #eef2f6;
+  --muted-foreground: #475569;
+  --border: #dce3ea;
+  --input: #c7d2dd;
+  --ring: var(--wp-teal);
+  --primary: #0f766e;
+  --primary-hover: #115e59;
+  --primary-foreground: #ffffff;
+  --secondary: #e6edf3;
+  --secondary-foreground: var(--wp-slate);
+  --link: #0f766e;
+  --accent: var(--wp-teal);
+  --accent-soft: #e6f6f4;
+  --success: #0f766e;
+  --success-soft: #e6f6f4;
+  --warning: #b45309;
+  --warning-strong: #92400e;
+  --warning-soft: #fff7e6;
+  --danger: var(--wp-red);
+  --danger-soft: #fdecec;
+  --info: #1e5a8a;
+  --info-soft: #eaf2fa;
+  --estimated: var(--wp-amber);
+  --sidebar: var(--wp-navy);
+  --sidebar-foreground: #dbe4ee;
+  --sidebar-muted: #93a4b8;
+  --sidebar-active: #1a2e44;
+  --sidebar-accent: #5eead4;
+  --chart-1: var(--wp-teal);
+  --chart-2: var(--wp-amber);
+  --chart-3: #3b6ea5;
+  --chart-4: #8b5cf6;
+  --chart-grid: #e2e8f0;
+  --chart-deficit: #fde2e2;
+  --shadow: 0 1px 2px rgb(13 27 42 / 0.06), 0 1px 3px rgb(13 27 42 / 0.08);
+  color-scheme: light;
+}
+
+.dark {
+  --background: var(--wp-navy);
+  --foreground: var(--wp-ivory);
+  --card: #132539;
+  --card-foreground: var(--wp-ivory);
+  --muted: #1b3048;
+  --muted-foreground: #a9b8c9;
+  --border: #2a3f57;
+  --input: #3a5270;
+  --ring: #2dd4bf;
+  --primary: #2dd4bf;
+  --primary-hover: #5eead4;
+  --primary-foreground: var(--wp-navy);
+  --secondary: var(--wp-slate);
+  --secondary-foreground: var(--wp-ivory);
+  --link: #5eead4;
+  --accent: #2dd4bf;
+  --accent-soft: #123a3d;
+  --success: #5eead4;
+  --success-soft: #123a3d;
+  --warning: #fbbf24;
+  --warning-strong: #fcd34d;
+  --warning-soft: #3a2a0c;
+  --danger: #f87171;
+  --danger-soft: #3a1414;
+  --info: #93c5fd;
+  --info-soft: #14304d;
+  --estimated: #fbbf24;
+  --sidebar: #08131f;
+  --sidebar-foreground: #dbe4ee;
+  --sidebar-muted: #93a4b8;
+  --sidebar-active: #16283c;
+  --sidebar-accent: #5eead4;
+  --chart-1: #2dd4bf;
+  --chart-2: #fbbf24;
+  --chart-3: #7fb2e5;
+  --chart-4: #c4b5fd;
+  --chart-grid: #2a3f57;
+  --chart-deficit: #3a1414;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-link: var(--link);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-strong: var(--warning-strong);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-estimated: var(--estimated);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-navy: var(--wp-navy);
+  --color-slate-brand: var(--wp-slate);
+  --color-teal-brand: var(--wp-teal);
+  --font-sans: 'Inter Variable', Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --shadow-card: var(--shadow);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Visible, consistent focus ring for keyboard users (never removed). */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.01em;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* Unverified / stale figures: dashed outline + label, never colour alone. */
+@utility unconfirmed {
+  border-style: dashed;
+  border-color: var(--estimated);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes wp-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--muted) 25%, color-mix(in srgb, var(--muted) 60%, var(--card)) 50%, var(--muted) 75%);
+  background-size: 200% 100%;
+  animation: wp-shimmer 1.4s ease-in-out infinite;
+}
