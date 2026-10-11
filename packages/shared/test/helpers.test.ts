@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  formatAssumptionValue,
   buildDevToken,
   buildExportRequest,
   contextLabel,
@@ -64,5 +65,15 @@ describe('exports, notifications, auth', () => {
     expect(buildDevToken('demo', 'Demo@Example.test')).toBe('dev:demo:demo@example.test');
     expect(buildDevToken('a b', 'x@y.z')).toBeNull();
     expect(buildDevToken('ok', 'not-an-email')).toBeNull();
+  });
+});
+
+describe('formatAssumptionValue (sensitivity inputs)', () => {
+  it('formats rates as percentages and money as money', () => {
+    expect(formatAssumptionValue('returns.us_portfolio_annual', '0.04', 'USD')).toBe('4%');
+    expect(formatAssumptionValue('retirement.spending_monthly_today', '6400.00', 'USD')).toBe('$6,400.00');
+    expect(formatAssumptionValue('retirement.spending_monthly_today', '6400.00', 'INR')).toBe('₹6,400.00');
+    expect(formatAssumptionValue('household.retirement_age', '65', 'USD')).toBe('65');
+    expect(formatAssumptionValue('returns.cash_annual', null, 'USD')).toBe('—');
   });
 });

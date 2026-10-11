@@ -10,7 +10,8 @@ import {
   type ScenarioAssumptions,
 } from '@wealthpilot/contracts';
 
-import { fractionToPercent, percentToFraction } from './decimal';
+import { formatRate, fractionToPercent, percentToFraction } from './decimal';
+import { formatMoney } from './money';
 
 export type AssumptionKind = 'percent' | 'money' | 'decimal' | 'int' | 'date' | 'choice' | 'bool' | 'nullableInt';
 
@@ -238,6 +239,29 @@ const EMPTY_SECTIONS = {
   },
   retirement_401k: { employee_contribution_annual: '0', employer_match_rate: '0', match_up_to_pct_of_salary: '0', contribution_limit_annual: '0', access_age: '59.5' },
   epf: { interest_rate_annual: '0', monthly_contribution: '0', accessible_from_age: null },
+  // Mirrors the engine's own defaults (wealthpilot_calc.models.HomeAssumptions). Price, date, down payment and
+  // mortgage rate stay empty: they are the user's to enter, never invented. Hidden fields (utilities, reserve,
+  // funding sources) must exist or the contract schema rejects the section.
+  home: {
+    enabled: true,
+    currency: 'USD',
+    target_price: null,
+    purchase_date: null,
+    down_payment_pct: null,
+    closing_cost_pct: '0',
+    prepaid_costs: '0',
+    credits: '0',
+    mortgage_rate_annual: null,
+    term_years: 30,
+    property_tax_rate_annual: '0',
+    insurance_annual: '0',
+    hoa_monthly: '0',
+    pmi_rate_annual: '0',
+    maintenance_pct_annual: '0',
+    utilities_monthly: '0',
+    emergency_reserve: '0',
+    funding_sources: { us_cash: true, brokerage: true, rsu_proceeds: true, india_liquid: false },
+  },
 };
 
 export function assumptionsToForm(a: ScenarioAssumptions, notes = ''): AssumptionsForm {
@@ -247,6 +271,7 @@ export function assumptionsToForm(a: ScenarioAssumptions, notes = ''): Assumptio
     rsu: a.rsu ?? EMPTY_SECTIONS.rsu,
     retirement_401k: a.retirement_401k ?? EMPTY_SECTIONS.retirement_401k,
     epf: a.epf ?? EMPTY_SECTIONS.epf,
+    home: a.home ?? EMPTY_SECTIONS.home,
   } as unknown as Record<string, unknown>;
   for (const s of ASSUMPTION_SECTIONS) {
     for (const f of s.fields) {
@@ -299,6 +324,14 @@ export function formToAssumptions(form: AssumptionsForm, base?: ScenarioAssumpti
     }
   }
   setPath(out, 'retirement.withdrawal_order', form.withdrawal_order);
+  // A section switched on that the server had as null starts from the empty block, so fields the form does not
+  // edit (e.g. home.funding_sources) are present.
+  for (const key of Object.keys(EMPTY_SECTIONS) as (keyof typeof EMPTY_SECTIONS)[]) {
+    const section = out[key];
+    if (section && typeof section === 'object' && !base?.[key]) {
+      out[key] = deepMerge(EMPTY_SECTIONS[key] as Record<string, unknown>, section as Record<string, unknown>);
+    }
+  }
   // Preserve any extra server fields we do not edit (forward compatibility).
   return base ? deepMerge(base as unknown as Record<string, unknown>, out) : out;
 }
@@ -340,3 +373,21 @@ export const WITHDRAWAL_LABELS: Record<string, string> = {
   tax_deferred: 'Tax-deferred (pre-tax 401k/IRA)',
   roth: 'Roth',
 };
+
+/** Kind of the assumption at `path` (e.g. "retirement.spending_monthly_today" -> "money"), if it is in the catalogue. */
+export function assumptionKind(path: string): AssumptionKind | undefined {
+  for (const s of ASSUMPTION_SECTIONS) for (const f of s.fields) if (f.path === path) return f.kind;
+  return undefined;
+}
+
+/**
+ * Formats a value of the assumption at `path` for display, e.g. a sensitivity row's low/high input: rates
+ * (stored as fractions) as percentages, money as money in `currency`, anything else as given.
+ */
+export function formatAssumptionValue(path: string, value: string | null | undefined, currency: string): string {
+  if (value == null || value === '') return '—';
+  const kind = assumptionKind(path);
+  if (kind === 'money') return formatMoney(value, currency);
+  if (kind === 'percent' || kind === undefined) return formatRate(value);
+  return value;
+}

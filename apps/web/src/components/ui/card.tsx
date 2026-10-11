@@ -3,7 +3,7 @@ import type { ComponentProps } from 'react';
 
 import { cn } from '@/lib/utils';
 
-const cardVariants = cva('rounded-xl border bg-card text-card-foreground shadow-card', {
+const cardVariants = cva('min-w-0 rounded-xl border bg-card text-card-foreground shadow-card', {
   variants: {
     tone: {
       default: 'border-border',

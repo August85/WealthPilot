@@ -29,6 +29,7 @@ import {
   User,
   XCircle,
 } from 'lucide-react';
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { Pill } from '@/components/ui/badge';
@@ -387,8 +388,8 @@ export function GoalProgress({
   illustrative?: boolean;
   href?: string;
 }) {
-  // `pct` is a fraction like every other ratio in the contract ("0.63" = 63%). See DECISIONS.md.
-  const pctNum = pct == null ? null : dec(pct).times(100);
+  // `pct` is already a percentage 0-100 ("54.99" = 55%), like ownership_pct; the API caps it at 100. See DECISIONS.md.
+  const pctNum = pct == null ? null : dec(pct);
   const shown = pctNum === null ? '—' : `${pctNum.toDecimalPlaces(0).toFixed(0)}%`;
   const width = pctNum === null ? 0 : Math.max(0, Math.min(100, pctNum.toNumber()));
   const body = (
@@ -422,9 +423,9 @@ export function GoalProgress({
   );
   if (href) {
     return (
-      <a href={href} className="flex flex-col gap-1.5 rounded-lg p-2 -mx-2 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">
+      <Link href={href} className="flex flex-col gap-1.5 rounded-lg p-2 -mx-2 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">
         {body}
-      </a>
+      </Link>
     );
   }
   return <div className="flex flex-col gap-1.5 py-2">{body}</div>;
@@ -483,9 +484,9 @@ export function VestTimeline({ items, today }: { items: VestTimelineItem[]; toda
         return (
           <li key={it.id}>
             {it.href ? (
-              <a href={it.href} className="-mx-2 flex gap-3 rounded-lg px-2 pt-1 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">
+              <Link href={it.href} className="-mx-2 flex gap-3 rounded-lg px-2 pt-1 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring">
                 {inner}
-              </a>
+              </Link>
             ) : (
               <div className="flex gap-3 pt-1">{inner}</div>
             )}

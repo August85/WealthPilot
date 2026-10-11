@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 
 import type { HomeResult, RunResult, ScenarioAssumptions, YearlyRow } from '@wealthpilot/contracts';
-import { METRIC_LABELS, deflate, formatMetric, type ForecastContext } from '@wealthpilot/shared';
+import { METRIC_LABELS, deflate, formatAssumptionValue, formatMetric, type ForecastContext } from '@wealthpilot/shared';
 
 import { DataTable, ProjectionChart } from '@/components/charts';
 import { AssumptionRow, ForecastCard, KeyValue, WarningPanel } from '@/components/finance';
@@ -266,9 +266,9 @@ export function SensitivityView({ result }: { result: RunResult }) {
         rows={result.sensitivity.map((s) => [
           s.label,
           METRIC_LABELS[s.metric] ?? s.metric,
-          `${formatMoney(s.low_result, c)} (${formatRate(s.low_input)})`,
+          `${formatMoney(s.low_result, c)} (${formatAssumptionValue(s.variable, s.low_input, c)})`,
           formatMoney(s.base_result, c),
-          `${formatMoney(s.high_result, c)} (${formatRate(s.high_input)})`,
+          `${formatMoney(s.high_result, c)} (${formatAssumptionValue(s.variable, s.high_input, c)})`,
         ])}
       />
     </Card>

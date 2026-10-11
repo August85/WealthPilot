@@ -377,8 +377,8 @@ export function GoalProgress({
   testID?: string;
 }) {
   const t = useTheme();
-  // `pct` is a fraction like every other ratio in the contract ("0.63" = 63%). See DECISIONS.md.
-  const pctNum = pct == null ? null : dec(pct).times(100);
+  // `pct` is already a percentage 0-100 ("54.99" = 55%), like ownership_pct; the API caps it at 100. See DECISIONS.md.
+  const pctNum = pct == null ? null : dec(pct);
   const shown = pctNum === null ? '—' : `${pctNum.toDecimalPlaces(0).toFixed(0)}%`;
   const width = pctNum === null ? 0 : Math.max(0, Math.min(100, pctNum.toNumber()));
   return (

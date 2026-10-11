@@ -1,3 +1,4 @@
+import { createElement } from 'react';
 import {
   Briefcase,
   Building2,
@@ -51,6 +52,5 @@ export function iconFor(key: string | undefined): LucideIcon {
 }
 
 export function CatalogIcon({ name, className }: { name: string | undefined; className?: string }) {
-  const Icon = iconFor(name);
-  return <Icon className={className} aria-hidden />;
+  return createElement(iconFor(name), { className, 'aria-hidden': true });
 }
