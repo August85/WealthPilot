@@ -32,6 +32,15 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/wealthpilot_api"]
 
+# Vercel (Python runtime, FastAPI preset). Dependencies install from uv.lock (`uv sync --no-editable`), which
+# builds the ../../packages/calculation_engine path dependency into the bundle; the build script validates the
+# configuration and runs migrations. See README "Deploying to Vercel".
+[tool.vercel]
+entrypoint = "index:app"
+
+[tool.vercel.scripts]
+build = "python scripts/vercel_build.py"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"

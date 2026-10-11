@@ -24,24 +24,17 @@ from .core.config import get_settings
 from .core.db import Database
 from .core.request_context import configure_logging
 from .main import build_job_context
-from .modules.jobs.service import JobContext, enqueue, reap_stale, run_pending
+from .modules.jobs.scheduler import enqueue_daily, sweep
+from .modules.jobs.service import JobContext, reap_stale, run_pending
 
 log = logging.getLogger("wealthpilot.worker")
 
-
-def enqueue_daily(ctx: JobContext, today: str | None = None) -> None:
-    day = today or datetime.now(UTC).date().isoformat()
-    with ctx.db_factory.session() as db:
-        enqueue(db, "daily_notifications", {"date": day}, dedupe_key=f"daily_notifications:{day}")
-        enqueue(db, "daily_maintenance", {"date": day}, dedupe_key=f"daily_maintenance:{day}")
-        db.commit()
+__all__ = ["enqueue_daily", "main", "run_once"]
 
 
 def run_once(ctx: JobContext, worker_id: str) -> int:
     enqueue_daily(ctx)
-    with ctx.db_factory.session() as db:
-        reap_stale(db)
-    return run_pending(ctx, worker_id)
+    return sweep(ctx, worker_id, limit=100).processed
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -51,7 +44,7 @@ def main(argv: list[str] | None = None) -> int:
 
     settings = get_settings()
     configure_logging(settings.log_level)
-    db = Database(settings.database_url)
+    db = Database(settings.database_url, pool_size=settings.db_pool_size)
     http = httpx.Client(timeout=10)
     ctx = build_job_context(settings, db, http)
     worker_id = f"{socket.gethostname()}:{os.getpid()}"

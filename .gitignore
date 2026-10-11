@@ -16,5 +16,6 @@ build/
 coverage/
 .coverage
 var/
+.vercel/
 .hypothesis/
 .claude/worktrees/

@@ -44,3 +44,11 @@ pnpm check                                             # contracts + mobile type
 ```
 
 CI runs all of these on every pull request (`.github/workflows/ci.yml`).
+
+## Hosting
+
+Everything runs on Vercel: the API is a Vercel project with Root Directory `services/api` (FastAPI on Vercel's
+Python runtime, inline jobs plus Vercel Cron), the database is Neon Postgres added from the Vercel Marketplace, and
+the web app will be its own Vercel project. Step-by-step setup, environment variables and how to point the mobile
+app at the deployed API: [`services/api/README.md#deploying-to-vercel`](services/api/README.md#deploying-to-vercel).
+The API's Dockerfile and standalone worker still work on container hosts.

@@ -35,6 +35,8 @@ class JsonFormatter(logging.Formatter):
         "error_type",
         "attempt",
         "count",
+        "requeued",
+        "processed",
     )
 
     def format(self, record: logging.LogRecord) -> str:

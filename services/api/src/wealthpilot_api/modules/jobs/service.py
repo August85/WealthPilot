@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import logging
+import time
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -172,9 +173,11 @@ def reap_stale(db: Session, minutes: int = 15) -> int:
     return res.rowcount or 0
 
 
-def run_pending(ctx: JobContext, worker_id: str, limit: int = 100) -> int:
+def run_pending(ctx: JobContext, worker_id: str, limit: int = 100, deadline: float | None = None) -> int:
+    """Claim and run due jobs until none are left, ``limit`` is reached or ``time.monotonic()`` passes
+    ``deadline`` (serverless invocations have a maximum duration)."""
     n = 0
-    while n < limit:
+    while n < limit and (deadline is None or time.monotonic() < deadline):
         with ctx.db_factory.session() as db:
             job = claim(db, worker_id)
             if job is None:

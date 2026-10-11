@@ -4,6 +4,9 @@
   (``WP_JWKS_CACHE_SECONDS``). An unknown ``kid`` triggers at most one refresh per minute (key rotation).
 * ``iss`` must equal ``WP_OIDC_ISSUER``; ``aud`` is checked only when ``WP_OIDC_AUDIENCE`` is set;
   ``exp``, ``iat`` and ``sub`` are required.
+* ``azp`` (authorized party; Clerk puts the requesting origin there) must be one of
+  ``WP_OIDC_AUTHORIZED_PARTIES`` when that list is set and the claim is present (Clerk: "if the azp claim doesn't
+  exist, you can skip this step", e.g. tokens minted for native apps).
 * Only asymmetric algorithms are accepted (never ``none`` or HMAC with a public key).
 """
 
@@ -113,6 +116,10 @@ class OidcVerifier:
             )
         except jwt.PyJWTError as exc:
             raise _invalid() from exc
+        parties = s.authorized_party_list
+        azp = claims.get("azp")
+        if parties and azp is not None and (not isinstance(azp, str) or azp.rstrip("/") not in parties):
+            raise _invalid()
         iat = claims.get("iat")
         return Principal(
             subject=str(claims["sub"]),

@@ -22,7 +22,7 @@ Product and engineering decisions for WealthPilot. Ambiguities are recorded here
 ## Open items needing AK or expert input
 
 - Legal/tax review of disclaimers and all copy before public launch (spec §11.3).
-- Choose hosting (e.g. Fly.io, Render, AWS) and buy the Apple/Google developer accounts.
+- ~~Choose hosting~~ Vercel chosen (see 2026-10-11 below). Still to do: buy the Apple/Google developer accounts.
 - Create the Clerk application and enable the social providers; set the keys in `.env`.
 - Licensed FX/price provider before offering automatic rates.
 
@@ -39,4 +39,22 @@ Product and engineering decisions for WealthPilot. Ambiguities are recorded here
 | Comparisons | `POST /comparisons` is treated as a read (cached query), since it computes over stored runs and writes nothing. |
 | Insights exposure thresholds | Client exposure indicators use fixed thresholds (medium ≥ 25%, high ≥ 50% of gross assets; liquidity medium < 25%, high < 10%), shown beside the indicator. Not advice. |
 | Purchases | Subscription screen shows §12 tiers with "proposed" prices; purchase buttons say "coming soon" until RevenueCat products exist. |
+
+## 2026-10-11 — Hosting on Vercel (requested by AK)
+
+Web app, database and backend all run on Vercel. Setup steps are in [`services/api/README.md`](services/api/README.md#deploying-to-vercel).
+
+| Topic | Decision |
+|---|---|
+| API runtime | Separate Vercel project, Root Directory `services/api`, FastAPI on Vercel's Python runtime (Fluid compute), Python 3.12 (`.python-version`). One function from `index.py` serves every path; `maxDuration` 60 s. |
+| Monorepo dependency | Vercel installs from `uv.lock` with `uv sync --frozen --no-dev --no-editable`, which builds the `packages/calculation_engine` path dependency into the function bundle (verified with `vercel build`). Needs the default "Include files outside the root directory in the Build Step". No vendoring or generated `requirements.txt`. |
+| Database | Neon Postgres from the Vercel Marketplace. The API reads `DATABASE_URL` / `POSTGRES_URL` when `WP_DATABASE_URL` is unset (URLs rewritten to `postgresql+psycopg://`), uses Neon's pooled URL with no in-process pool (`NullPool`) and no automatic prepared statements, and migrates over `DATABASE_URL_UNPOOLED`. Neon preview branching is recommended so previews never touch production data. |
+| Migrations | `alembic upgrade head` runs in the Vercel build (`scripts/vercel_build.py`) under a Postgres advisory lock; skipped when no database is connected. The build also fails on unsafe settings (dev auth, missing secret, missing OIDC config) instead of deploying a broken function. |
+| Jobs | No worker process: on Vercel jobs run inline in the request (`WP_INLINE_JOBS=1`; scenario runs take < 1 s). Two Vercel Cron jobs (daily, Hobby-compatible) call `/v1/internal/cron/daily` (notifications + maintenance + sweep) and `/v1/internal/cron/sweep` (retries, stuck jobs, scheduled erasures), guarded by `CRON_SECRET` and excluded from the OpenAPI document. The standalone worker stays for container hosts. |
+| Exports | New `postgres` storage backend (`export_artifacts` table, bytea, expiring with the export) is the default on Vercel since functions have no persistent disk. `local` and `s3` remain. |
+| Auth | Production uses Clerk via OIDC. `WP_ENV` defaults to `production` on Vercel production and `staging` on previews; dev auth is refused on every Vercel production/preview deployment. Optional `azp` check against `WP_OIDC_AUTHORIZED_PARTIES` (skipped when the claim is absent, as Clerk documents, e.g. native-app tokens). |
+| CORS | The web app gets its own Vercel project/domain: `WP_CORS_ORIGINS` plus optional `WP_CORS_ORIGIN_REGEX` for its preview URLs. |
+| Kept | Dockerfile, `python -m wealthpilot_api.worker`, local/S3 storage and `scripts/dev-db.sh` are unchanged for other hosts and local development. |
+
+Open: on the Hobby plan cron fires once a day (any time within the hour), so a failed inline job waits up to ~12 h for its retry; move to Pro and add a frequent sweep if that matters. Hobby is for personal, non-commercial use, so a public app needs Pro.
 
